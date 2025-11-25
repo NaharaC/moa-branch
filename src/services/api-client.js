@@ -5,23 +5,26 @@ const DEFAULT_TIMEOUT = env.API_TIMEOUT ?? 15000;
 let tokenGetter = () => {
   const token =
     localStorage.getItem("moa.accessToken") || localStorage.getItem("token");
-  return token ?? null;
+
+  if (!token) return null;
+
+  return token.replace(/^"+|"+$/g, "");
 };
 
 let onUnauthorized = null;
 
-export function setTokenGetter(fn) {
+export const setTokenGetter = (fn) => {
   tokenGetter = typeof fn === "function" ? fn : () => null;
-}
+};
 
-export function setOnUnauthorized(fn) {
+export const setOnUnauthorized = (fn) => {
   onUnauthorized = typeof fn === "function" ? fn : null;
-}
+};
 
 const isRawBody = (data) =>
-  (typeof FormData !== "undefined" && data instanceof FormData) ||
-  (typeof Blob !== "undefined" && data instanceof Blob) ||
-  (typeof ArrayBuffer !== "undefined" && data instanceof ArrayBuffer);
+  data instanceof FormData ||
+  data instanceof Blob ||
+  data instanceof ArrayBuffer;
 
 async function request(
   path,
@@ -33,9 +36,9 @@ async function request(
     timeout = DEFAULT_TIMEOUT,
   } = {}
 ) {
-  const baseURL = env.API_BASE_URL;
-  const url = new URL(path, baseURL);
+  const url = new URL(path, env.API_BASE_URL);
 
+  // Timeout
   const controller = new AbortController();
   const timer = setTimeout(
     () => controller.abort(new Error("Request timeout")),
@@ -48,6 +51,7 @@ async function request(
     signal: controller.signal,
   };
 
+  // Body
   if (data !== undefined) {
     if (isRawBody(data)) {
       opts.body = data;
@@ -57,11 +61,11 @@ async function request(
     }
   }
 
-  // 🔥 Obtener token una sola vez
+  // Auth
   let token = null;
   if (auth) {
     token = tokenGetter();
-    opts.headers.Authorization = token ? `Bearer ${token}` : "";
+    if (token) opts.headers.Authorization = `Bearer ${token}`;
   }
 
   let res;
@@ -74,19 +78,13 @@ async function request(
   if (res.status === 204) return null;
 
   const text = await res.text();
-  let payload;
-  try {
-    payload = text ? JSON.parse(text) : null;
-  } catch {
-    payload = text;
-  }
+  const payload = text ? tryParseJSON(text) : null;
 
-  // 🔥 Usar el MISMO token leído antes
   if (res.status === 401 && token && onUnauthorized) {
     try {
       onUnauthorized();
     } catch (e) {
-      console.error("onUnauthorized handler failed", e);
+      console.error(e);
     }
   }
 
@@ -100,16 +98,23 @@ async function request(
   return payload;
 }
 
+const tryParseJSON = (text) => {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+};
+
 const verbs = (auth) => ({
-  get: (path, opts = {}) => request(path, { ...opts, method: "GET", auth }),
-  post: (path, data, opts = {}) =>
+  get: (path, opts) => request(path, { ...opts, method: "GET", auth }),
+  post: (path, data, opts) =>
     request(path, { ...opts, method: "POST", data, auth }),
-  put: (path, data, opts = {}) =>
+  put: (path, data, opts) =>
     request(path, { ...opts, method: "PUT", data, auth }),
-  patch: (path, data, opts = {}) =>
+  patch: (path, data, opts) =>
     request(path, { ...opts, method: "PATCH", data, auth }),
-  delete: (path, opts = {}) =>
-    request(path, { ...opts, method: "DELETE", auth }),
+  delete: (path, opts) => request(path, { ...opts, method: "DELETE", auth }),
 });
 
 export const apiClient = {

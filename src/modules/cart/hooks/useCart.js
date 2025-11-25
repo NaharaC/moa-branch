@@ -12,6 +12,8 @@ export const useCart = () => {
     initialValue: [],
   });
 
+  console.log("TOKEN", token);
+
   useEffect(() => {
     if (!isReady || !token) return;
 

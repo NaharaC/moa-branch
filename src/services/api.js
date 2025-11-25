@@ -9,6 +9,7 @@ api.interceptors.request.use((config) => {
   const token =
     localStorage.getItem("token") || localStorage.getItem("moa.accessToken");
   if (token) {
+    token.replace(/^"+|"+$/g, "");
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
