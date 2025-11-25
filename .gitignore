@@ -1,0 +1,31 @@
+node_modules
+**/node_modules
+
+.vite
+**/.vite
+
+.env
+**/.env
+.env.*.local
+**/.env.*.local
+
+snapshots/*.txt
+snapshots/*.json
+
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+**/styleguide/StyleGuidePage.jsx
+
+scripts/*.jsx
+scripts/*.js
+.env copy
+
+.copilot-temp
+docs/**.md
+docs/misDOCS/
+snapshots/**
+# Local-only UI sandboxes
+frontend/src/modules/admin/pages/AdminTestPage.local.jsx

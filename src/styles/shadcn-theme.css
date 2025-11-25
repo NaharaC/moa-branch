@@ -1,0 +1,62 @@
+/* shadcn-theme.css
+   Bridge shadcn UI design tokens to existing MOA CSS variables.
+   Use: import this once in main.jsx before component rendering.
+*/
+:root {
+  /* Base (maps to MOA neutrals) */
+  --background: var(--color-neutral1);
+  --foreground: var(--color-text);
+
+  /* Muted surfaces */
+  --muted: var(--color-neutral2);
+  --muted-foreground: var(--color-text-secondary);
+
+  /* Popover / card */
+  --popover: var(--color-neutral2);
+  --popover-foreground: var(--color-text);
+
+  /* Border & input */
+  --border: var(--color-border);
+  --input: var(--color-border);
+
+  /* Primary brand */
+  --primary: var(--color-primary1);
+  --primary-foreground: var(--color-text-on-dark);
+
+  /* Secondary / accent */
+  --secondary: var(--color-primary3);
+  --secondary-foreground: var(--color-text);
+
+  /* Accent for subtle interactive surfaces */
+  --accent: var(--color-primary4);
+  --accent-foreground: var(--color-text);
+
+  /* Destructive */
+  --destructive: var(--color-error);
+  --destructive-foreground: var(--color-text-on-dark);
+
+  /* Ring */
+  --ring: var(--color-primary1);
+
+  /* Radius (fallbacks to existing tokens if defined) */
+  --radius: var(--radius-md, 0.5rem);
+}
+
+/* Typography helpers (optional shadcn expectation) */
+:root {
+  --font-sans: var(--font-sans, Plus Jakarta Sans, ui-sans-serif, system-ui);
+  --font-mono: var(--font-mono, ui-monospace, SFMono-Regular);
+}
+
+/* Light/Dark adjustments (dark scheme placeholder) */
+.dark {
+  --background: var(--color-dark);
+  --foreground: var(--color-text-on-dark);
+  --muted: var(--color-primary2);
+  --muted-foreground: var(--color-text-on-dark);
+  --popover: var(--color-primary2);
+  --popover-foreground: var(--color-text-on-dark);
+  --border: var(--color-primary3);
+  --input: var(--color-primary3);
+  --ring: var(--color-primary4);
+}

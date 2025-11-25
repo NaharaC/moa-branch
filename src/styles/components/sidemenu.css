@@ -1,0 +1,47 @@
+.sidebar-collapsible {
+  width: 80px;
+  transition: width 0.25s ease;
+  overflow: hidden;
+}
+.sidebar-collapsible:hover,
+.sidebar-collapsible:focus-within {
+  width: 200px;
+}
+.sidebar-collapsible .sidebar-label {
+  display: inline-block;
+  opacity: 0;
+  max-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity 0.2s ease, max-width 0.2s ease;
+}
+.sidebar-collapsible:hover .sidebar-label,
+.sidebar-collapsible:focus-within .sidebar-label {
+  opacity: 1;
+  max-width: 200px;
+}
+.sidebar-link {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: var(--radius-xl);
+  border: none !important;
+  border-color: transparent;
+}
+.sidebar-link:hover {
+  background-color: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
