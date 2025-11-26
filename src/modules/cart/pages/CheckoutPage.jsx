@@ -29,6 +29,7 @@ import {
 import { ordersApi } from "../../../services/orders.api.js";
 import { cartsApi } from "../../../services/carts.api.js";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 
@@ -49,7 +50,7 @@ const paymentOptions = [
 
 export const CheckoutPage = () => {
   const navigate = useNavigate();  
-
+  const queryClient = useQueryClient();
   const { cartItems, total, removeFromCart, clearCart } = useCartContext();
   const [deliveryMethod, setDeliveryMethod] = useState(deliveryOptions[0].value);
   const [paymentMethod, setPaymentMethod] = useState(paymentOptions[0].value);
@@ -90,9 +91,11 @@ const handlePay = async () => {
     await cartsApi.clear(); 
     clearCart();
 
+    await queryClient.invalidateQueries(["my-orders"]);
+
     alert(`Compra exitosa. Código: ${response.order_code}`);
 
-    navigate("/cart");
+    navigate("/home");
 
   } catch (error) {
     console.error("Error creando orden:", error);

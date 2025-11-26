@@ -16,7 +16,7 @@ export const useMyOrders = () => {
   });
 
   return {
-    orders: query.data?.items ?? [],
+    orders: query.data ?? [],
     isLoading: query.isLoading,
     error: query.error,
     refetch: query.refetch,
