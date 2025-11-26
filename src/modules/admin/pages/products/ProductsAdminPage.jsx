@@ -9,6 +9,7 @@ import { Button } from "../../../../components/ui/Button.jsx";
 import { useAdminProducts } from "../../hooks/useAdminProducts.js";
 import { useCategories } from "../../../products/hooks/useCategories.js";
 import { buildProductColumns } from "../../utils/ProductsColumns.jsx";
+import { productsApi } from "../../../../services/products.api.js";
 
 // import { useNavigate } from "react-router-dom";
 // import { API_PATHS } from "../../../../config/api-paths.js";
@@ -35,6 +36,37 @@ export default function ProductsAdminPage() {
     [categories]
   );
 
+  const handleDelete = React.useCallback(
+    async (product) => {
+      if (!product?.id) {
+        console.error("No product ID available");
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `¿Está seguro que desea eliminar "${product.name}"?`
+      );
+      
+      if (!confirmed) return;
+
+      try {
+        // Implementar la llamada a la API
+        console.log("Eliminando producto:", product.id);
+        await productsApi.remove(product.id);
+        
+        // Refrescar la lista
+        await refetch();
+        
+        // Aquí puedes mostrar una notificación de éxito
+        console.log("Producto eliminado exitosamente");
+      } catch (err) {
+        console.error("Error al eliminar producto:", err);
+        // Aquí puedes mostrar una notificación de error
+      }
+    },
+    [refetch]
+  );
+
   const columns = React.useMemo(
     () =>
       buildProductColumns({
@@ -45,11 +77,9 @@ export default function ProductsAdminPage() {
         onEdit: (product) => {
           console.log("edit product", product);
         },
-        onDelete: (product) => {
-          console.log("delete product", product);
-        },
+        onDelete: handleDelete,
       }),
-    [categoryMap]
+    [categoryMap, handleDelete]
   );
 
   // const navigate = useNavigate();

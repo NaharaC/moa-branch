@@ -12,9 +12,7 @@ import {
 } from "../../../components/ui/radix/DropdownMenu.jsx";
 import { Button } from "../../../components/ui/Button.jsx";
 
-
-
-export function buildProductColumns({ onView, onEdit, onDuplicate, onDelete, categoryMap }) {
+export function buildProductColumns({ onView, onEdit, onDelete, categoryMap }) {
   return [
     {
       id: "image",
@@ -138,10 +136,6 @@ export function buildProductColumns({ onView, onEdit, onDuplicate, onDelete, cat
                 <DropdownMenuItem onSelect={() => onEdit?.(product)}>
                   <Edit3 className="mr-2 h-4 w-4" />
                   Editar producto
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onDuplicate?.(product)}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Duplicar
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

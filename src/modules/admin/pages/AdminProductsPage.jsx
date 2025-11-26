@@ -24,7 +24,8 @@ import { buildProductColumns } from "../utils/ProductsColumns.jsx";
 import { DEFAULT_PAGE_SIZE } from "../../../config/constants.js";
 import { PRODUCT_STATUS_OPTIONS } from "../../../config/status-options.js";
 import { useNavigate } from "react-router-dom";
-
+import { productsApi } from "../../../services/products.api.js";
+// import { handleError } from "../utils/";
 
 export default function ProductsAdminPage() {
 
@@ -71,14 +72,20 @@ export default function ProductsAdminPage() {
           // Create a copy with new SKU and set to draft status
           refetch();
         },
-        onDelete: (product) => {
+        onDelete: async (product) => {
           if (confirm(`¿Estás seguro de eliminar "${product.name}"?`)) {
-            console.log("delete product", product);
-            // TODO: Call API to delete product
-            refetch();
+             try {
+              await productsApi.remove(product.id);
+              setSelectedProductEdit(null);
+              refetch();
+            } catch (error) {
+              console.error("Error eliminando el producto:", error);
+              // handleError(error, 'No se pudo eliminar el producto');
+            }
           }
         },
       }),
+      
     [categoryMap, refetch]
   );
 
