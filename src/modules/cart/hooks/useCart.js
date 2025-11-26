@@ -52,15 +52,22 @@ export const useCart = () => {
             : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [
+        ...prev,
+        {
+          ...product,
+          quantity: 1,
+          price: product.price ?? product.precio_unit ?? 0,
+        },
+      ];
     });
   };
 
   // -----------------------------------
-  // REMOVE FROM CART
+  // REMOVE
   // -----------------------------------
   const removeFromCart = async (productId) => {
-    await cartsApi.remove(productId); // si falla, lanza error
+    await cartsApi.remove(productId);
 
     setCartItems((prev) => prev.filter((item) => item.id !== productId));
   };
@@ -71,9 +78,7 @@ export const useCart = () => {
   const updateQuantity = async (productId, quantity) => {
     if (quantity <= 0) return removeFromCart(productId);
 
-    const res = await cartsApi.update(productId, quantity);
-
-    if (res?.status !== 200) return;
+    await cartsApi.update(productId, quantity);
 
     setCartItems((prev) =>
       prev.map((item) => (item.id === productId ? { ...item, quantity } : item))
@@ -81,22 +86,26 @@ export const useCart = () => {
   };
 
   // -----------------------------------
-  // CLEAR CART
+  // CLEAR CART — FIXED
   // -----------------------------------
   const clearCart = async () => {
-    const res = await cartsApi.clear();
-
-    if (res?.status !== 200) return;
-
-    setCartItems([]);
+    try {
+      await cartsApi.clear(); // backend
+      setCartItems([]); // frontend
+      return true;
+    } catch (error) {
+      console.error("Error limpiando carrito:", error);
+      return false;
+    }
   };
 
+  // -----------------------------------
+  // TOTAL
+  // -----------------------------------
   const total = useMemo(
     () =>
       cartItems.reduce(
-        (acc, item) =>
-          acc +
-          (Number(item.price) || Number(item.precio_unit) || 0) * item.quantity,
+        (acc, item) => acc + (Number(item.price) || 0) * item.quantity,
         0
       ),
     [cartItems]

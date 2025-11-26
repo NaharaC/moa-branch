@@ -27,6 +27,8 @@ import {
   Textarea,
 } from "../../../components/shadcn/ui/index.js";
 import { ordersApi } from "../../../services/orders.api.js";
+import { cartsApi } from "../../../services/carts.api.js";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -46,10 +48,13 @@ const paymentOptions = [
 ];
 
 export const CheckoutPage = () => {
+  const navigate = useNavigate();  
+
   const { cartItems, total, removeFromCart, clearCart } = useCartContext();
   const [deliveryMethod, setDeliveryMethod] = useState(deliveryOptions[0].value);
   const [paymentMethod, setPaymentMethod] = useState(paymentOptions[0].value);
   const [notes, setNotes] = useState("");
+
 
   const hasItems = cartItems.length > 0;
 
@@ -69,10 +74,10 @@ const handlePay = async () => {
 
   try {
     const payload = {
-      items: cartItems.map((item) => ({
+      items: cartItems.map(item => ({
         id: item.id,
         quantity: item.quantity,
-        price_cents: item.price, // o price_cents si ya lo tienes
+        price_cents: item.price,
       })),
       total_cents: total,
       delivery_method: deliveryMethod,
@@ -82,14 +87,25 @@ const handlePay = async () => {
 
     const response = await ordersApi.create(payload);
 
-    await clearCart();
-    
+    await cartsApi.clear(); 
+    clearCart();
+
     alert(`Compra exitosa. Código: ${response.order_code}`);
+
+    navigate("/cart");
+
   } catch (error) {
     console.error("Error creando orden:", error);
-    alert("No pudimos procesar tu compra, intenta nuevamente.");
+
+    const message =
+      error?.data?.detail ||
+      error?.data?.error ||
+      "No pudimos procesar tu compra, intenta nuevamente.";
+
+    alert(message);
   }
 };
+
 
 
   return (
