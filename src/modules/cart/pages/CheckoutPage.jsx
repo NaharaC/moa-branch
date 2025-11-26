@@ -82,8 +82,8 @@ const handlePay = async () => {
 
     const response = await ordersApi.create(payload);
 
-    clearCart();
-
+    await clearCart();
+    
     alert(`Compra exitosa. Código: ${response.order_code}`);
   } catch (error) {
     console.error("Error creando orden:", error);

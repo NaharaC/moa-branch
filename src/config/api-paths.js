@@ -15,10 +15,18 @@ export const API_PATHS = {
     categories: "/categorias",
     collections: "/colecciones",
   },
+
   cart: {
     root: () => "/cart",
     checkout: (userId) => `/${userId}/checkout`,
+
+    // 🔥 AGREGADO (no borra nada)
+    add: () => "/cart/add",
+    remove: (id) => `/cart/remove/${id}`,
+    update: () => "/cart/update",
+    clear: () => "/cart/clear",
   },
+
   profile: {
     root: (userId) => `/${userId}/perfil`,
   },
@@ -43,8 +51,7 @@ export const API_PATHS = {
     customers: "/admin/clientes",
     settings: "/admin/configuraciones",
     collections: "/admin/colecciones",
-    uiDemo: "/admin", // TODO: quitar alias temporal cuando UI demo tenga ruta propia
-    // Ruta de pruebas de componentes
+    uiDemo: "/admin",
     test: "/admin/test",
   },
 };

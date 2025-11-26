@@ -7,12 +7,17 @@ export const useOrders = () => {
     initialValue: [],
   });
 
-  // Crear  nueva orden
-  const createOrder = (orderData) => {
+  // Guarda una orden REAL (viene del backend)
+  const saveOrder = (backendOrder) => {
     const newOrder = {
-      id: Date.now(), // ID único (temporal)
+      id: backendOrder.order_id, // ID REAL
+      code: backendOrder.order_code, // código MOA-XXXX
       date: new Date().toISOString(),
-      ...orderData, // { productos, total, etc. }
+      items: backendOrder.items,
+      total: backendOrder.total_cents,
+      delivery_method: backendOrder.delivery_method,
+      payment_method: backendOrder.payment_method,
+      notes: backendOrder.notes,
     };
 
     setOrders((prev) => [...prev, newOrder]);
@@ -20,13 +25,9 @@ export const useOrders = () => {
     return newOrder;
   };
 
-  // Obtener una orden específica
   const getOrderById = (id) => orders.find((o) => o.id === id);
 
-  // Borrar  órdenes
-  const clearOrders = () => {
-    setOrders([]);
-  };
+  const clearOrders = () => setOrders([]);
 
-  return { orders, createOrder, getOrderById, clearOrders };
+  return { orders, saveOrder, getOrderById, clearOrders };
 };

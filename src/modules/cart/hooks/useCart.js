@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { usePersistentState } from "../../../hooks/usePersistentState.js";
 import { useAuth } from "../../../context/auth-context.js";
-import { api } from "@/services/api";
 import { cartsApi } from "@/services/carts.api.js";
 
 const CART_STORAGE_KEY = "cart";
@@ -19,8 +18,10 @@ export const useCart = () => {
     cartsApi
       .carts()
       .then((res) => {
-        if (Array.isArray(res.data.items)) {
-          const normalized = res.data.items.map((item) => ({
+        const items = res?.items || res?.data?.items || [];
+
+        if (Array.isArray(items)) {
+          const normalized = items.map((item) => ({
             id: item.producto_id,
             quantity: item.cantidad,
             price: item.precio_unit,
@@ -29,18 +30,18 @@ export const useCart = () => {
           setCartItems(normalized);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Error cargando carrito:", err);
+      });
   }, [isReady, token, setCartItems]);
 
+  // -----------------------------------
+  // ADD TO CART
+  // -----------------------------------
   const addToCart = async (product) => {
     if (!token) return;
 
-    const res = await api.post("/cart/add", {
-      producto_id: product.id,
-      cantidad: 1,
-    });
-
-    if (res.status !== 200) return;
+    await cartsApi.add(product.id, 1);
 
     setCartItems((prev) => {
       const existing = prev.find((item) => item.id === product.id);
@@ -55,33 +56,37 @@ export const useCart = () => {
     });
   };
 
+  // -----------------------------------
+  // REMOVE FROM CART
+  // -----------------------------------
   const removeFromCart = async (productId) => {
-    const res = await api.delete(`/cart/remove/${productId}`);
-
-    if (res.status !== 200) return;
+    await cartsApi.remove(productId); // si falla, lanza error
 
     setCartItems((prev) => prev.filter((item) => item.id !== productId));
   };
 
+  // -----------------------------------
+  // UPDATE QUANTITY
+  // -----------------------------------
   const updateQuantity = async (productId, quantity) => {
     if (quantity <= 0) return removeFromCart(productId);
 
-    const res = await api.patch("/cart/update", {
-      producto_id: productId,
-      cantidad: quantity,
-    });
+    const res = await cartsApi.update(productId, quantity);
 
-    if (res.status !== 200) return;
+    if (res?.status !== 200) return;
 
     setCartItems((prev) =>
       prev.map((item) => (item.id === productId ? { ...item, quantity } : item))
     );
   };
 
+  // -----------------------------------
+  // CLEAR CART
+  // -----------------------------------
   const clearCart = async () => {
-    const res = await api.delete("/cart/clear");
+    const res = await cartsApi.clear();
 
-    if (res.status !== 200) return;
+    if (res?.status !== 200) return;
 
     setCartItems([]);
   };
