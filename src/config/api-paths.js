@@ -16,7 +16,7 @@ export const API_PATHS = {
     collections: "/colecciones",
   },
   cart: {
-    root: (userId) => `/${userId}/cart`,
+    root: () => "/cart",
     checkout: (userId) => `/${userId}/checkout`,
   },
   profile: {

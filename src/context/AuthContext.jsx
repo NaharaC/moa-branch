@@ -32,8 +32,8 @@ export const AuthProvider = ({ children }) => {
 
   const syncToken = useCallback(
     (t) => {
-      setTokenGetter(() => t);
       setToken(t ?? null);
+      setTokenGetter(() => t);
     },
     [setToken]
   );

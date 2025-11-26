@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { usePersistentState } from "../../../hooks/usePersistentState.js";
 import { useAuth } from "../../../context/auth-context.js";
 import { api } from "@/services/api";
+import { cartsApi } from "@/services/carts.api.js";
 
 const CART_STORAGE_KEY = "cart";
 
@@ -12,13 +13,11 @@ export const useCart = () => {
     initialValue: [],
   });
 
-  console.log("TOKEN", token);
-
   useEffect(() => {
     if (!isReady || !token) return;
 
-    api
-      .get("/cart")
+    cartsApi
+      .carts()
       .then((res) => {
         if (Array.isArray(res.data.items)) {
           const normalized = res.data.items.map((item) => ({
