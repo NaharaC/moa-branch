@@ -25,12 +25,13 @@ import { DEFAULT_PAGE_SIZE } from "../../../config/constants.js";
 import { PRODUCT_STATUS_OPTIONS } from "../../../config/status-options.js";
 import { useNavigate } from "react-router-dom";
 import { productsApi } from "../../../services/products.api.js";
+import { useQueryClient } from "@tanstack/react-query";
+
 // import { handleError } from "../utils/";
 
 export default function ProductsAdminPage() {
-
   const navigate = useNavigate();
-
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -74,18 +75,20 @@ export default function ProductsAdminPage() {
         },
         onDelete: async (product) => {
           if (confirm(`¿Estás seguro de eliminar "${product.name}"?`)) {
-             try {
+            try {
               await productsApi.remove(product.id);
+
+              queryClient.invalidateQueries(["admin-products"]);
+              queryClient.invalidateQueries(["products"]); // opcional
+
               setSelectedProductEdit(null);
-              refetch();
             } catch (error) {
               console.error("Error eliminando el producto:", error);
-              // handleError(error, 'No se pudo eliminar el producto');
             }
           }
         },
       }),
-      
+
     [categoryMap, refetch]
   );
 
@@ -262,7 +265,12 @@ export default function ProductsAdminPage() {
               console.error("No product ID for update");
               return;
             }
-            console.log("Updating product:", selectedProductEdit.id, "with data:", data);
+            console.log(
+              "Updating product:",
+              selectedProductEdit.id,
+              "with data:",
+              data
+            );
             await productsApi.update(selectedProductEdit.id, data);
             console.log("Product updated successfully");
             setSelectedProductEdit(null);
