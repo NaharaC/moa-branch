@@ -1,12 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { ALL_CATEGORY_ID, DEFAULT_PAGE_SIZE } from "../../../config/constants.js";
+import {
+  ALL_CATEGORY_ID,
+  DEFAULT_PAGE_SIZE,
+} from "../../../config/constants.js";
 import { ensureNumber } from "../../../utils/number.js";
 import { clamp } from "../../../utils/math.js";
 import { formatCurrencyCLP } from "../../../utils/currency.js";
 import { buildCategoriesWithAll } from "../../../utils/normalizers.js";
-import { createCategoryMatcher, resolveProductPrice } from "../utils/products.js";
+import {
+  createCategoryMatcher,
+  resolveProductPrice,
+} from "../utils/products.js";
 
 const resolveCategoryFromQuery = (categoryQuery, categories) => {
   if (!categoryQuery) return ALL_CATEGORY_ID;
@@ -16,7 +22,10 @@ const resolveCategoryFromQuery = (categoryQuery, categories) => {
 
   const match = categories.find((cat) => {
     if (!cat) return false;
-    if (cat.slug && String(cat.slug).toLowerCase() === String(categoryQuery).toLowerCase()) {
+    if (
+      cat.slug &&
+      String(cat.slug).toLowerCase() === String(categoryQuery).toLowerCase()
+    ) {
       return true;
     }
     return String(cat.id) === String(categoryQuery);
@@ -49,31 +58,46 @@ export const useProductFilters = ({
   itemsPerPage: selectedPageSize = DEFAULT_PAGE_SIZE,
   defaultPageSize = DEFAULT_PAGE_SIZE,
 } = {}) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [category, setCategory] = useState(ALL_CATEGORY_ID);
-  const [min, setMin] = useState(0);
-  const [max, setMax] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams] = useSearchParams();
+  const categoryQuery = searchParams.get("category");
 
-  const categories = useMemo(() => buildCategoriesWithAll(fetchedCategories), [fetchedCategories]);
-  const matchCategory = useMemo(() => createCategoryMatcher(categories), [categories]);
-  const allProducts = useMemo(
-    () => (Array.isArray(fetchedProducts) && fetchedProducts.length ? fetchedProducts : []),
-    [fetchedProducts],
+  const categories = useMemo(
+    () => buildCategoriesWithAll(fetchedCategories),
+    [fetchedCategories]
   );
 
-  const { minPrice, maxPrice } = useMemo(() => buildPriceBounds(allProducts), [allProducts]);
-  const categoryQuery = searchParams.get("category");
-  const searchParamsSnapshot = searchParams.toString();
+  const matchCategory = useMemo(
+    () => createCategoryMatcher(categories),
+    [categories]
+  );
+
+  const allProducts = useMemo(
+    () =>
+      Array.isArray(fetchedProducts) && fetchedProducts.length
+        ? fetchedProducts
+        : [],
+    [fetchedProducts]
+  );
+
+  const { minPrice, maxPrice } = useMemo(
+    () => buildPriceBounds(allProducts),
+    [allProducts]
+  );
 
   const resolvedCategoryFromQuery = useMemo(
     () => resolveCategoryFromQuery(categoryQuery, categories),
-    [categoryQuery, categories],
+    [categoryQuery, categories]
   );
 
+  const [category, setCategory] = useState(resolvedCategoryFromQuery);
+  const [min, setMin] = useState(minPrice);
+  const [max, setMax] = useState(maxPrice);
+  const [currentPage, setCurrentPage] = useState(1);
+
   useEffect(() => {
-    if (resolvedCategoryFromQuery === undefined || resolvedCategoryFromQuery === null) return;
-    setCategory((prev) => (prev === resolvedCategoryFromQuery ? prev : resolvedCategoryFromQuery));
+    setCategory((prev) =>
+      prev === resolvedCategoryFromQuery ? prev : resolvedCategoryFromQuery
+    );
   }, [resolvedCategoryFromQuery]);
 
   useEffect(() => {
@@ -83,30 +107,7 @@ export const useProductFilters = ({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [category, min, max, selectedSort, setCurrentPage]);
-
-  useEffect(() => {
-    const nextParam =
-      category === ALL_CATEGORY_ID
-        ? null
-        : (() => {
-            const active = categories.find(
-              (cat) => String(cat.id) === String(category),
-            );
-            if (active?.slug) return active.slug;
-            return String(category);
-          })();
-    const normalizedCurrent = categoryQuery ?? null;
-    if ((nextParam ?? null) === normalizedCurrent) return;
-
-    const nextSearchParams = new URLSearchParams(searchParamsSnapshot);
-    if (nextParam === null) {
-      nextSearchParams.delete("category");
-    } else {
-      nextSearchParams.set("category", nextParam);
-    }
-    setSearchParams(nextSearchParams, { replace: true });
-  }, [category, categories, categoryQuery, searchParamsSnapshot, setSearchParams]);
+  }, [category, min, max, selectedSort]);
 
   const filteredProducts = useMemo(() => {
     return allProducts.filter((product) => {
@@ -121,28 +122,36 @@ export const useProductFilters = ({
 
   const sortedProducts = useMemo(() => {
     if (selectedSort === "relevance") return filteredProducts;
+
     const copy = [...filteredProducts];
+
     if (selectedSort === "price-asc") {
       return copy.sort(
-        (a, b) => (resolveProductPrice(a) ?? 0) - (resolveProductPrice(b) ?? 0),
+        (a, b) => (resolveProductPrice(a) ?? 0) - (resolveProductPrice(b) ?? 0)
       );
     }
+
     if (selectedSort === "price-desc") {
       return copy.sort(
-        (a, b) => (resolveProductPrice(b) ?? 0) - (resolveProductPrice(a) ?? 0),
+        (a, b) => (resolveProductPrice(b) ?? 0) - (resolveProductPrice(a) ?? 0)
       );
     }
+
     if (selectedSort === "name-asc") {
-      return copy.sort((a, b) => (a.name ?? a.slug ?? "").localeCompare(b.name ?? b.slug ?? ""));
+      return copy.sort((a, b) =>
+        (a.name ?? a.slug ?? "").localeCompare(b.name ?? b.slug ?? "")
+      );
     }
+
     return copy;
   }, [filteredProducts, selectedSort]);
 
   const totalResults = sortedProducts.length;
+
   const paginationInfo = useMemo(() => {
     const safeLimit = Math.max(
       1,
-      ensureNumber(selectedPageSize ?? defaultPageSize, DEFAULT_PAGE_SIZE),
+      ensureNumber(selectedPageSize ?? defaultPageSize, DEFAULT_PAGE_SIZE)
     );
     const totalItems = totalResults;
     const totalPages = Math.max(1, Math.ceil(totalItems / safeLimit));
@@ -159,7 +168,13 @@ export const useProductFilters = ({
       start: totalItems === 0 ? 0 : startIndex + 1,
       end: endIndex,
     };
-  }, [sortedProducts, currentPage, selectedPageSize, defaultPageSize, totalResults]);
+  }, [
+    sortedProducts,
+    currentPage,
+    selectedPageSize,
+    defaultPageSize,
+    totalResults,
+  ]);
 
   const handleChangePrice = ({ min: nextMin, max: nextMax }) => {
     setMin(ensureNumber(nextMin, minPrice));
@@ -182,14 +197,18 @@ export const useProductFilters = ({
   const activeCategory = useMemo(() => {
     if (category === ALL_CATEGORY_ID) return null;
     return categories.find(
-      (cat) => cat.id === category || String(cat.id) === String(category),
+      (cat) => cat.id === category || String(cat.id) === String(category)
     );
   }, [category, categories]);
 
   const appliedFilters = [
     activeCategory ? { label: activeCategory.name, type: "category" } : null,
-    min > minPrice ? { label: `Desde ${formatCurrencyCLP(min)}`, type: "min" } : null,
-    max < maxPrice ? { label: `Hasta ${formatCurrencyCLP(max)}`, type: "max" } : null,
+    min > minPrice
+      ? { label: `Desde ${formatCurrencyCLP(min)}`, type: "min" }
+      : null,
+    max < maxPrice
+      ? { label: `Hasta ${formatCurrencyCLP(max)}`, type: "max" }
+      : null,
   ].filter(Boolean);
 
   return {

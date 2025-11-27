@@ -68,7 +68,9 @@ export default function ProductsPage() {
               Mostrar{" "}
               <select
                 value={itemsPerPage}
-                onChange={(event) => handleChangeItemsPerPage(event.target.value)}
+                onChange={(event) =>
+                  handleChangeItemsPerPage(event.target.value)
+                }
                 className="w-fit rounded-full border border-transparent bg-transparent px-2 py-2 text-sm text-neutral-700 transition focus:border-(--color-primary1,#6B5444) focus:outline-none"
               >
                 {pageSizeOptions.map((option) => (
@@ -172,3 +174,4 @@ export default function ProductsPage() {
     </main>
   );
 }
+
