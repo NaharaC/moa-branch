@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal } from "../../../components/ui/Modal.jsx";
-import { Trash2 } from "lucide-react";
 
 const STATUS_VALUES = ["activo", "sin_stock", "borrador"];
 
@@ -39,7 +38,6 @@ export function ProductDrawer({
   onClose,
   onSubmit, // (payload) => Promise<void>
   onSave, // alias para onSubmit
-  onDelete, // (product) => void
   initial,
   product, // alias para initial
   categories = [],
@@ -50,8 +48,8 @@ export function ProductDrawer({
 
   const {
     register,
-    handleSubmit,
     reset,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(productSchema),
@@ -72,9 +70,7 @@ export function ProductDrawer({
       dimLength: "",
       dimUnit: "cm",
     },
-  });
-
-  // Cargar datos iniciales (incluyendo dimensiones)
+  });  // Cargar datos iniciales (incluyendo dimensiones)
   useEffect(() => {
     if (!open) return;
 
@@ -121,6 +117,12 @@ export function ProductDrawer({
     await effectiveSubmit?.(payload);
   };
 
+  const handleSaveClick = async (e) => {
+    e.preventDefault();
+    const data = getValues();
+    await handleFormSubmit(data);
+  };
+
   return (
     <Modal
       open={open}
@@ -132,7 +134,7 @@ export function ProductDrawer({
       bodyClassName="h-full max-h-full px-5 py-4"
     >
       <form
-        onSubmit={handleSubmit(handleFormSubmit)}
+        onSubmit={(e) => e.preventDefault()}
         className="flex h-full flex-col gap-4"
       >
         {/* Contenido scrollable */}
@@ -362,19 +364,6 @@ export function ProductDrawer({
 
         {/* Footer: Guardar / Eliminar */}
         <div className="mt-3 flex justify-start gap-2 border-t border-neutral-100 pt-3 absolute bottom-0 w-full bg-white mx-3 mb-5">
-          {effectiveInitial ? (
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 rounded-md border border-red-200 px-3 py-2 text-xs text-red-600 hover:bg-red-50"
-              onClick={() => onDelete?.(effectiveInitial)}
-            >
-              <Trash2 className="h-4 w-4" />
-              Eliminar
-            </button>
-          ) : (
-            <span />
-          )}
-
           <div className="flex gap-2">
             <button
               type="button"
@@ -384,8 +373,9 @@ export function ProductDrawer({
               Cancelar
             </button>
             <button
-              type="submit"
+              type="button"
               disabled={isSubmitting}
+              onClick={handleSaveClick}
               className="rounded-md bg-(--color-primary1) px-3 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
             >
               {isSubmitting ? "Guardando…" : "Guardar"}
