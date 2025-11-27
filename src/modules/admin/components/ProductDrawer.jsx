@@ -38,11 +38,16 @@ export function ProductDrawer({
   open,
   onClose,
   onSubmit, // (payload) => Promise<void>
+  onSave, // alias para onSubmit
   onDelete, // (product) => void
   initial,
+  product, // alias para initial
   categories = [],
   collections = [],
 }) {
+  const effectiveInitial = initial ?? product ?? null;
+  const effectiveSubmit = onSubmit ?? onSave;
+
   const {
     register,
     handleSubmit,
@@ -73,12 +78,12 @@ export function ProductDrawer({
   useEffect(() => {
     if (!open) return;
 
-    if (initial) {
-      const dim = initial.dimensions || {};
+    if (effectiveInitial) {
+      const dim = effectiveInitial.dimensions || {};
       reset({
-        ...initial,
-        fk_category_id: initial.fk_category_id ?? "",
-        fk_collection_id: initial.fk_collection_id ?? "",
+        ...effectiveInitial,
+        fk_category_id: effectiveInitial.fk_category_id ?? "",
+        fk_collection_id: effectiveInitial.fk_collection_id ?? "",
         dimHeight: dim.height ?? "",
         dimWidth: dim.width ?? "",
         dimLength: dim.length ?? "",
@@ -87,7 +92,7 @@ export function ProductDrawer({
     } else {
       reset({});
     }
-  }, [open, initial, reset]);
+  }, [open, effectiveInitial, reset]);
 
   const handleFormSubmit = async (data) => {
     const {
@@ -113,14 +118,14 @@ export function ProductDrawer({
       dimensions,
     };
 
-    await onSubmit?.(payload);
+    await effectiveSubmit?.(payload);
   };
 
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title={initial ? "Editar producto" : "Nuevo producto"}
+      title={effectiveInitial ? "Editar producto" : "Nuevo producto"}
       placement="right"
       showCloseButton
       closeOnOverlayClick={true}
@@ -308,7 +313,7 @@ export function ProductDrawer({
           </div>
 
           {/* Bloque: dimensiones */}
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50/60 px-4 py-3">
+          <div className="rounded-2xl border border-neutral-200 bg-neutral-50/60 px-4 py-3 mb-30">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
               Dimensiones
             </h3>
@@ -356,12 +361,12 @@ export function ProductDrawer({
         </div>
 
         {/* Footer: Guardar / Eliminar */}
-        <div className="mt-3 flex justify-between gap-2 border-t border-neutral-100 pt-3">
-          {initial ? (
+        <div className="mt-3 flex justify-start gap-2 border-t border-neutral-100 pt-3 absolute bottom-0 w-full bg-white mx-3 mb-5">
+          {effectiveInitial ? (
             <button
               type="button"
               className="inline-flex items-center gap-1 rounded-md border border-red-200 px-3 py-2 text-xs text-red-600 hover:bg-red-50"
-              onClick={() => onDelete?.(initial)}
+              onClick={() => onDelete?.(effectiveInitial)}
             >
               <Trash2 className="h-4 w-4" />
               Eliminar

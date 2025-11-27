@@ -56,6 +56,22 @@ export default function NewProductPage() {
         type: "success",
         message: `Producto "${product.nombre}" creado correctamente.`,
       });
+      // Emitir un evento global para que el listado en /admin/productos se refresque,
+      // sin navegar fuera de esta página. También marcamos en localStorage una
+      // marca temporal para que la vista de listado pueda detectarlo si estaba
+      // desmontada cuando se creó el producto.
+      try {
+        window.dispatchEvent(
+          new CustomEvent("admin:product-created", { detail: product })
+        );
+      } catch {
+        // en algunos entornos (SSR) window puede no existir, ignore
+      }
+      try {
+        window.localStorage.setItem("admin:product-created-ts", String(Date.now()));
+      } catch {
+        // ignore
+      }
     } catch (error) {
       console.error("Error al crear el producto", error);
       setFeedback({

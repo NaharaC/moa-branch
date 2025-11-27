@@ -89,6 +89,38 @@ export default function ProductsAdminPage() {
     [categoryMap, refetch]
   );
 
+  // Escuchar eventos de producto creado desde la página de creación
+  // para forzar un refetch del listado sin necesidad de navegación.
+  React.useEffect(() => {
+    const handler = () => {
+      // ev.detail puede contener el producto creado; por ahora solo refetch
+      try {
+        refetch();
+      } catch (err) {
+        console.error("Error refetch after product created event:", err);
+      }
+    };
+
+    window.addEventListener("admin:product-created", handler);
+    return () => window.removeEventListener("admin:product-created", handler);
+  }, [refetch]);
+
+  // Chequear si hubo un producto creado mientras esta vista estaba desmontada.
+  // NewProductPage escribe una marca en localStorage que usamos para forzar refetch
+  // la próxima vez que el listado se monta.
+  React.useEffect(() => {
+    try {
+      const ts = window.localStorage.getItem("admin:product-created-ts");
+      if (ts) {
+        // limpiamos la marca y forzamos refetch
+        window.localStorage.removeItem("admin:product-created-ts");
+        refetch();
+      }
+    } catch {
+      // si localStorage no está disponible, ignoramos
+    }
+  }, [refetch]);
+
   const clearAll = () => {
     setSearch("");
     setStatus("");
@@ -181,7 +213,7 @@ export default function ProductsAdminPage() {
         </div>
       </TableToolbar>
     ),
-    [search, status, onlyLowStock, activeTags, condensed, refetch]
+    [search, status, onlyLowStock, activeTags, condensed, refetch, navigate]
   );
 
   return (
@@ -224,11 +256,20 @@ export default function ProductsAdminPage() {
         open={!!selectedProductEdit}
         product={selectedProductEdit}
         onClose={() => setSelectedProductEdit(null)}
-        onSave={(data) => {
-          console.log("Save product:", data);
-          // TODO: Implement save logic
-          setSelectedProductEdit(null);
-          refetch();
+        onSave={async (data) => {
+          try {
+            if (!selectedProductEdit?.id) {
+              console.error("No product ID for update");
+              return;
+            }
+            console.log("Updating product:", selectedProductEdit.id, "with data:", data);
+            await productsApi.update(selectedProductEdit.id, data);
+            console.log("Product updated successfully");
+            setSelectedProductEdit(null);
+            await refetch();
+          } catch (err) {
+            console.error("Error updating product:", err);
+          }
         }}
       />
     </div>
