@@ -1,7 +1,7 @@
-import { API_PATHS } from '../config/api-paths.js';
+import { API_PATHS } from "../config/api-paths.js";
 
 export const ROUTES = {
-  home: '/',
+  home: "/",
   landing: API_PATHS.home.landing,
   categories: API_PATHS.products.categories,
   products: API_PATHS.products.products,
@@ -19,11 +19,11 @@ export const ROUTES = {
     privacy: API_PATHS.support.privacy,
     terms: API_PATHS.support.terms,
   },
-  wishlist: API_PATHS.wishlist.root(':userId'),
-  cart: API_PATHS.cart.root(':userId'),
-  checkout: API_PATHS.cart.checkout(':userId'),
+  wishlist: API_PATHS.wishlist.root(":userId"),
+  cart: API_PATHS.cart.root(":userId"),
+  checkout: API_PATHS.cart.checkout(":userId"),
   admin: {
-    dashboard: API_PATHS.admin.dashboard,
+    dashboard: API_PATHS.admin.products,
     products: API_PATHS.admin.products,
     collections: API_PATHS.admin.collections,
     orders: API_PATHS.admin.orders,

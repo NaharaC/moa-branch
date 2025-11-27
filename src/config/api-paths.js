@@ -52,7 +52,5 @@ export const API_PATHS = {
     customers: "/admin/clientes",
     settings: "/admin/configuraciones",
     collections: "/admin/colecciones",
-    uiDemo: "/admin",
-    test: "/admin/test",
   },
 };

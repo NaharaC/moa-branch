@@ -7,12 +7,12 @@ import { LayoutDashboard, Package, Warehouse, Users, Settings, LogOut, Store, La
 import { API_PATHS } from "@config/api-paths.js";
 
 const navItems = [
-  { label: "Resumen", to: API_PATHS.admin.dashboard, icon: LayoutDashboard },
-  { label: "Pedidos", to: API_PATHS.admin.orders, icon: Package },
+  // { label: "Resumen", to: API_PATHS.admin.dashboard, icon: LayoutDashboard },
+  // { label: "Pedidos", to: API_PATHS.admin.orders, icon: Package },
   { label: "Productos", to: API_PATHS.admin.products, icon: Warehouse },
-  { label: "Colecciones", to: API_PATHS.admin.collections, icon: Layers },
-  { label: "Clientes", to: API_PATHS.admin.customers, icon: Users },
-  { label: "Ajustes", to: API_PATHS.admin.settings, icon: Settings },
+  // { label: "Colecciones", to: API_PATHS.admin.collections, icon: Layers },
+  // { label: "Clientes", to: API_PATHS.admin.customers, icon: Users },
+  // { label: "Ajustes", to: API_PATHS.admin.settings, icon: Settings },
 ];
 
 

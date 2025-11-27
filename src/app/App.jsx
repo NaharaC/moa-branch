@@ -19,7 +19,6 @@ import ResetPasswordPage from '../modules/auth/pages/ResetPasswordPage.jsx'
 
 import { ProfilePage } from '../modules/profile/pages/ProfilePage.jsx'
 import { WishlistPage } from '../modules/profile/pages/WishlistPage.jsx'
-import { StyleGuidePage } from '../modules/styleguide/pages/StyleGuidePage.jsx'
 
 import ContactPage from '../modules/support/pages/ContactPage.jsx';
 import { FAQPage } from '../modules/support/pages/FAQPage.jsx'
@@ -86,7 +85,6 @@ export const App = () => {
             <Route path={admin.settings} element={<EntornoAdmin> <AdminSettingsPage /> </EntornoAdmin>} />
           </Route>
 
-          <Route path='/style-guide/*' element={<StyleGuidePage />} />
         </Routes>
       </main>
       {!isAdminRoute && <Footer />}

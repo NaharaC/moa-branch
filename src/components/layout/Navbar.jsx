@@ -143,7 +143,7 @@ export function Navbar({ onNavigate, cartItemCount = 0 }) {
                     // ADMIN: acceso directo al dashboard
                     <Link
                       aria-label="Dashboard admin"
-                      to={API_PATHS.admin.dashboard}
+                      to={API_PATHS.admin.products}
                       className="nav-btn nav-btn-primary"
                     >
                       Dashboard
@@ -264,7 +264,7 @@ export function Navbar({ onNavigate, cartItemCount = 0 }) {
                 <div className="flex items-center justify-between gap-3 animate-fade-in-up">
                   {isAdmin ? (
                     <Link
-                      to={API_PATHS.admin.dashboard}
+                      to={API_PATHS.admin.products}
                       className="nav-btn nav-btn-primary w-full text-center"
                       onClick={() => setIsMenuOpen(false)}
                     >
